@@ -1,0 +1,141 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Name - Personal Page</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Arial', sans-serif; }
+    a { transition: color 0.2s; }
+    .section { max-width: 800px; margin: 0 auto; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+  <!-- Header -->
+  <header class="bg-white shadow py-6">
+    <div class="container mx-auto px-4 text-center section">
+      <!-- Optional: Add profile photo -->
+      <!-- <img src="your-photo.jpg" alt="Profile Photo" class="w-24 h-24 rounded-full mx-auto mb-4"> -->
+      <h1 class="text-3xl font-bold">Your Name</h1>
+      <p class="text-lg text-gray-600">Researcher | [Your Field/Title]</p>
+    </div>
+  </header>
+
+  <!-- Navigation -->
+  <nav class="bg-gray-100 py-4 sticky top-0 shadow">
+    <div class="container mx-auto px-4 flex justify-center space-x-6 section">
+      <a href="#about" class="text-blue-600 hover:text-blue-800">About</a>
+      <a href="#cv" class="text-blue-600 hover:text-blue-800">CV</a>
+      <a href="#research" class="text-blue-600 hover:text-blue-800">Research</a>
+      <a href="#contact" class="text-blue-600 hover:text-blue-800">Contact</a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="py-8">
+    <!-- About Section -->
+    <section id="about" class="mb-12 section px-4">
+      <h2 class="text-2xl font-bold mb-4">About</h2>
+      <p class="text-gray-700 leading-relaxed">
+        I am a dedicated researcher in [Your Field], with a focus on [Your Specialization]. My work explores [Brief Description of Your Work]. I hold a [Your Degree] from [University Name] and am passionate about advancing knowledge in [Your Area]. Outside of research, I enjoy [Hobby or Interest].
+      </p>
+    </section>
+
+    <!-- CV Section -->
+    <section id="cv" class="mb-12 section px-4">
+      <h2 class="text-2xl font-bold mb-4">Curriculum Vitae</h2>
+      <!-- Education -->
+      <div class="mb-6">
+        <h3 class="text-xl font-semibold mb-2">Education</h3>
+        <p class="text-gray-700">
+          <strong>[Degree, e.g., PhD in Your Field]</strong>, [University Name], [City], [Year - Year]<br>
+          Thesis: [Thesis Title, if applicable]<br>
+          <strong>[Degree, e.g., BS/MS in Your Field]</strong>, [University Name], [City], [Year - Year]
+        </p>
+      </div>
+      <!-- Experience -->
+      <div class="mb-6">
+        <h3 class="text-xl font-semibold mb-2">Experience</h3>
+        <p class="text-gray-700">
+          <strong>[Job Title]</strong>, [Organization], [City], [Year - Year]<br>
+          [Description of Responsibilities or Achievements]<br>
+          <strong>[Job Title]</strong>, [Organization], [City], [Year - Year]<br>
+          [Description of Responsibilities or Achievements]
+        </p>
+      </div>
+      <!-- Skills -->
+      <div>
+        <h3 class="text-xl font-semibold mb-2">Skills</h3>
+        <ul class="list-disc pl-5 text-gray-700">
+          <li>[Skill 1, e.g., Python, R]</li>
+          <li>[Skill 2, e.g., Data Analysis, Machine Learning]</li>
+          <li>[Skill 3, e.g., Technical Writing, Project Management]</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Research Interests Section -->
+    <section id="research" class="mb-12 section px-4">
+      <h2 class="text-2xl font-bold mb-4">Research Interests</h2>
+      <p class="text-gray-700 leading-relaxed">
+        My research centers on [Primary Research Area], particularly [Specific Topic]. I am currently investigating [Current Project or Interest]. My work has been published in [Journals or Conferences, or link to Google Scholar]. I am excited about future directions in [Future Research Interest].
+      </p>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="section px-4">
+      <h2 class="text-2xl font-bold mb-4">Contact</h2>
+      <p class="text-gray-700">
+        Email: <a href="mailto:your.email@example.com" class="text-blue-600 hover:underline">your.email@example.com</a><br>
+        LinkedIn: <a href="https://linkedin.com/in/yourprofile" class="text-blue-600 hover:underline">linkedin.com/in/yourprofile</a><br>
+        Google Scholar: <a href="https://scholar.google.com/yourprofile" class="text-blue-600 hover:underline">scholar.google.com/yourprofile</a>
+      </p>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-100 py-4 text-center">
+    <p class="text-gray-600">© 2025 Your Name. Hosted on GitHub Pages.</p>
+  </footer>
+</body>
+</html>
